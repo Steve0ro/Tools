@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """
-uri_maker.py
-
 Create a wordlist of repository/file paths from:
  - a local directory tree (preferred by default if the argument points to disk)
  - OR an optional GitHub repository URL (uses GitHub API)
@@ -50,20 +48,17 @@ def get_default_branch(owner: str, repo: str) -> str:
 
 def get_repo_tree(owner: str, repo: str, branch: str) -> List[dict]:
     headers = {"Accept": "application/vnd.github.v3+json"}
-    branch_url = f"https://api.github.com/repos/{
-        owner}/{repo}/branches/{branch}"
+    branch_url = f"https://api.github.com/repos/{owner}/{repo}/branches/{branch}"
     resp = requests.get(branch_url, headers=headers)
     if resp.status_code != 200:
-        raise ValueError(f"Failed to get branch info: {
-                         resp.status_code} - {resp.text}")
+        raise ValueError(f"Failed to get branch info: {resp.status_code} - {resp.text}")
     commit_sha = resp.json()["commit"]["sha"]
     tree_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{
         commit_sha
     }?recursive=1"
     resp = requests.get(tree_url, headers=headers)
     if resp.status_code != 200:
-        raise ValueError(f"Failed to get tree: {
-                         resp.status_code} - {resp.text}")
+        raise ValueError(f"Failed to get tree: {resp.status_code} - {resp.text}")
     return resp.json().get("tree", [])
 
 
@@ -156,12 +151,18 @@ def main():
     parser.add_argument(
         "--local-only",
         action="store_true",
-        help="Treat the source as local; do not attempt GitHub fetches",
+        help=(
+            "Treat the source as local; do not attempt GitHub fetches.\n"
+            "Example: python3 url_scraper.py --local-only ./mantisbt"
+        ),
     )
     parser.add_argument(
         "--allow-github",
         action="store_true",
-        help="Allow GitHub network fetches even if source looks like local path",
+        help=(
+            "Allow GitHub network fetches even if source looks like local path\n"
+            "Example: python3 url_scraper.py --allow-github https://github.com/mantisbt"
+        ),
     )
     args = parser.parse_args()
 
